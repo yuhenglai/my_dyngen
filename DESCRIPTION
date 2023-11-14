@@ -56,12 +56,3 @@ Suggests:
   SCORPIUS,
   fastICA,
   covr
-Remotes:
-  dgrtwo/gganimate,
-  dynverse/fastgssa,
-  dynverse/splatter,
-  rcannood/dynnormaliser,
-  rcannood/dynutils,
-  rcannood/dynwrap,
-  rcannood/PRISM,
-  briatte/ggnetwork
