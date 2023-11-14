@@ -1,0 +1,53 @@
+---
+title: "dyngen"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(fig.path=".readme_files/", warning=FALSE, message=FALSE, error=FALSE, echo = TRUE)
+```
+
+[![Build Status](https://travis-ci.com/Zouter/dyngen.svg?token=pzNqJjk3yapU1Hk7sDg8&branch=master)](https://travis-ci.com/Zouter/dyngen) [![codecov](https://codecov.io/gh/Zouter/dyngen/branch/master/graph/badge.svg?token=IGVryyPFpI)](https://codecov.io/gh/Zouter/dyngen)
+
+A package to generating synthetic single-cell data starting from regulatory networks
+
+```{r, message=F}
+library(tidyverse)
+library(dyngen)
+
+params <- simple_params
+options(ncores = 1)
+```
+
+Generating a regulatory network and a system of differential equations
+```{r model}
+model <- invoke(generate_model_from_modulenet, params$model)
+plot_net(model)
+```
+
+Simulating this system 
+```{r simulate}
+simulation <- invoke(simulate_multiple, params$simulation, model$system)
+plot_simulation_space_time(simulation)
+```
+
+Extracting the gold standard trajectory from the simulations
+```{r extract_goldstandard}
+gs <- invoke(extract_goldstandard, params$gs, simulation, model)
+plot_goldstandard_heatmap(simulation, gs)
+```
+
+Simulating the single-cell RNA-seq experiment
+```{r run_experiment}
+experiment <- invoke(run_experiment, params$experiment, simulation, gs)
+```
+
+Normalising the data
+```{r normalise}
+normalisation <- invoke(dynnormaliser::normalise_filter_counts, params$normalisation, experiment$counts)
+```
+
+Wrapping in a task
+```{r wrap}
+task <- wrap_task("readme_dataset", params, model, simulation, gs, experiment, normalisation)
+```
